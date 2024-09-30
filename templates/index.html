@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Result Generator</title>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+    <style>
+        /* Styles for the drag-and-drop area */
+        #drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            color: #999;
+        }
+        #drop-area.hover {
+            border-color: #333;
+            color: #333;
+        }
+        #gallery {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .thumb {
+            position: relative;
+            display: inline-block;
+        }
+        .thumb img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .thumb button {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>Manual QMS Test Result Generator</h1>
+        <form action="/generate" method="post" enctype="multipart/form-data">
+            <label for="testName">Test Name:</label>
+            <input type="text" id="testName" name="testName" required>
+
+            <label for="testStatus">Test Status:</label>
+            <select id="testStatus" name="testStatus" required>
+                <option value="passed">Success</option>
+                <option value="failed">Failure</option>
+            </select>
+
+            <label for="testTag">Unique Test Tag:</label>
+            <input type="text" id="testTag" name="testTag" required>
+
+            <label for="featureName">Feature Name:</label>
+            <input type="text" id="featureName" name="featureName" required>
+
+            <label for="optionTag">Select Option:</label>
+            <select id="optionTag" name="optionTag" required>
+                <option value="PV">PV</option>
+                <option value="IV">IV</option>
+                <option value="pPV">pPV</option>
+                <option value="pIV">pIV</option>
+            </select>
+
+            <label for="attachments">Attachments (jpg or png images):</label>
+            <div id="drop-area">
+                <p>Drag & drop images here or click to select files</p>
+                <input type="file" id="fileElem" name="attachments[]" accept=".jpg,.jpeg,.png" multiple style="display:none;">
+            </div>
+            <div id="gallery"></div>
+
+            <button type="submit">Generate Test Result File</button>
+        </form>
+    </main>
+
+    <script>
+        // JavaScript for handling drag-and-drop, displaying thumbnails, and deleting images
+        let dropArea = document.getElementById('drop-area');
+        let fileInput = document.getElementById('fileElem');
+        let gallery = document.getElementById('gallery');
+        let filesMap = new Map();
+
+        dropArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.add('hover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                dropArea.classList.remove('hover');
+            }, false);
+        });
+
+        dropArea.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function handleDrop(e) {
+            e.preventDefault();
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            handleFiles({ target: { files: files } });
+        }
+
+        function handleFiles(e) {
+            let files = e.target.files;
+            for (let i = 0; i < files.length; i++) {
+                addFile(files[i]);
+            }
+            fileInput.value = ''; // Reset file input
+        }
+
+        function addFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Only image files are allowed.');
+                return;
+            }
+
+            // Create a unique ID for the file
+            let fileId = Math.random().toString(36).substr(2, 9);
+            filesMap.set(fileId, file);
+
+            // Create a hidden file input
+            let hiddenInput = document.createElement('input');
+            hiddenInput.type = 'file';
+            hiddenInput.name = 'attachments[]';
+            hiddenInput.style.display = 'none';
+            hiddenInput.files = createFileList([file]);
+            hiddenInput.id = 'file-' + fileId;
+
+            document.querySelector('form').appendChild(hiddenInput);
+
+            previewFile(file, fileId);
+        }
+
+        function previewFile(file, fileId) {
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = function () {
+                let thumb = document.createElement('div');
+                thumb.classList.add('thumb');
+                thumb.id = 'thumb-' + fileId;
+
+                let img = document.createElement('img');
+                img.src = reader.result;
+
+                let btn = document.createElement('button');
+                btn.innerHTML = '&times;';
+                btn.addEventListener('click', function () {
+                    removeFile(fileId);
+                });
+
+                thumb.appendChild(img);
+                thumb.appendChild(btn);
+                gallery.appendChild(thumb);
+            }
+        }
+
+        function removeFile(fileId) {
+            filesMap.delete(fileId);
+            let thumb = document.getElementById('thumb-' + fileId);
+            thumb.parentNode.removeChild(thumb);
+
+            let hiddenInput = document.getElementById('file-' + fileId);
+            hiddenInput.parentNode.removeChild(hiddenInput);
+        }
+
+        function createFileList(files) {
+            let dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            return dataTransfer.files;
+        }
+    </script>
+</body>
+</html>
