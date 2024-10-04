@@ -20,10 +20,9 @@ jobs:
       run: |
         npm install -g localtunnel
 
-    - name: Start the HTMX web service
+    - name: Build the HTMX web service
       run: |
         go build -o webserver .
-        ./webserver &  # Start the server in the background.
 
     - name: Expose service via LocalTunnel
       run: |
@@ -36,5 +35,6 @@ jobs:
     - name: Show public IP address
       run: curl ipv4.icanhazip.com
 
-    - name: Keep workflow alive for debugging
-      run: sleep 200  # Keep the workflow alive for 10 minutes to allow time for interaction
+    - name: Start and wait for HTMX web service
+      run: |
+        ./webserver  # Run the HTMX web server in the foreground (blocking)
