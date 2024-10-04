@@ -27,7 +27,7 @@ jobs:
 
     - name: Expose service via LocalTunnel
       run: |
-        lt --port 8080 > url.txt &  # Start LocalTunnel on port 8080 and save the URL to a file
+        lt --port 8080 --host http://localhost > url.txt &  # Start LocalTunnel on port 8080 and save the URL to a file
         sleep 5  # Wait for LocalTunnel to start up
 
     - name: Show LocalTunnel URL
