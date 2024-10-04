@@ -10,6 +10,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4.1.7
+      with:
+        clean: true  # Ensure the workspace is cleaned before checkout
 
     - name: Set up Go environment
       uses: actions/setup-go@v5
