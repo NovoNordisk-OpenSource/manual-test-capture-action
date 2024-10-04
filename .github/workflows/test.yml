@@ -30,8 +30,9 @@ jobs:
     - name: Build the HTMX web service
       run: |
         go build -o webserver .
+      
 
-    - name: Expose service via LocalTunnel
+    - name: Start LocalTunnel and wait for HTMX web service
       run: |
         TIMESTAMP=$(date +%s)
         SUBDOMAIN="manual-test-${TIMESTAMP}"
@@ -40,10 +41,7 @@ jobs:
         sleep 5  # Wait for LocalTunnel to start up
         echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
-      
-
-    - name: Start and wait for HTMX web service
-      run: |
+        echo "If you get a 'Bad Gateway' error, refresh the page."
         ./webserver  # Run the HTMX web server in the foreground (blocking)
 
     - name: List all generated test result .json files
