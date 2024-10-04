@@ -26,14 +26,10 @@ jobs:
     - name: Build the HTMX web service
       run: |
         go build -o webserver .
-      
-    - name: Start the HTMX web service
-      run: |
-        ./webserver &  # Start the server in the background
 
     - name: Expose service via localhost.run
       run: |
-        ssh -o StrictHostKeyChecking=no -R 80:localhost:8080 ssh.localhost.run > localhostrun.txt 2>&1 &
+        ssh -o StrictHostKeyChecking=no -R 80:localhost:8080 nokey@localhost.run > localhostrun.txt 2>&1 &
         sleep 5  # Wait for SSH tunnel to establish
   
     - name: Show localhost.run URL
@@ -41,9 +37,9 @@ jobs:
         cat localhostrun.txt
         echo "Your web service is now accessible at the URL above."
 
-    - name: Wait for web server to exit
+    - name: Start the HTMX web service and wait for it to exit
       run: |
-        wait
+        ./webserver
 
     - name: List all generated test result .json files
       run: find output -name '*-result.json'
