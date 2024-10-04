@@ -38,3 +38,15 @@ jobs:
     - name: Start and wait for HTMX web service
       run: |
         ./webserver  # Run the HTMX web server in the foreground (blocking)
+
+    - name: List all generated test result .json files
+      run: find output -name '*-result.json'
+
+    - name: Print the content of all .json files in the output directory
+      run: find output -name '*-result.json' -exec cat {} \;
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4.4.0
+      with:
+        name: manual-test-results
+        path: output/
