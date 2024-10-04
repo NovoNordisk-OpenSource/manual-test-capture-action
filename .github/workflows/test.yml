@@ -27,7 +27,7 @@ jobs:
 
     - name: Expose service via LocalTunnel
       run: |
-        lt --port 8080 --subdomain manual-test-${{ env.timestamp }} > url.txt &  # Start LocalTunnel on port 8080 and save the dynamic URL to a file
+        lt --port 8080 --subdomain manual-test-$(date +%s) > url.txt &  # Start LocalTunnel on port 8080 and save the dynamic URL to a file
         sleep 5  # Wait for LocalTunnel to start up
 
     - name: Show LocalTunnel URL
