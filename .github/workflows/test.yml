@@ -1,0 +1,37 @@
+name: Test expose web server with LocalTunnel
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  expose-webserver:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4.1.7
+
+    - name: Set up Go environment
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+
+    - name: Install LocalTunnel
+      run: |
+        npm install -g localtunnel
+
+    - name: Start the HTMX web service
+      run: |
+        go build -o webserver .
+        ./webserver &  # Start the server in the background.
+
+    - name: Expose service via LocalTunnel
+      run: |
+        lt --port 8080 > url.txt &  # Start LocalTunnel on port 8080 and save the URL to a file
+        sleep 5  # Wait for LocalTunnel to start up
+
+    - name: Show LocalTunnel URL
+      run: cat url.txt  # Output the LocalTunnel URL so you can access it
+
+    - name: Keep workflow alive for debugging
+      run: sleep 600  # Keep the workflow alive for 10 minutes to allow time for interaction
