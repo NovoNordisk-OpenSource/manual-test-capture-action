@@ -27,11 +27,14 @@ jobs:
 
     - name: Expose service via LocalTunnel
       run: |
-        lt --port 8080 --host http://localhost > url.txt &  # Start LocalTunnel on port 8080 and save the URL to a file
+        lt --port 8080 --subdomain manual-test > url.txt &  # Start LocalTunnel on port 8080 and save the URL to a file
         sleep 5  # Wait for LocalTunnel to start up
 
     - name: Show LocalTunnel URL
       run: cat url.txt  # Output the LocalTunnel URL so you can access it
+
+    - name: Show public IP address
+      run: curl ipv4.icanhazip.com
 
     - name: Keep workflow alive for debugging
       run: sleep 600  # Keep the workflow alive for 10 minutes to allow time for interaction
