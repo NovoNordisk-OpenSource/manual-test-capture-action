@@ -27,14 +27,14 @@ jobs:
 
     - name: Expose service via LocalTunnel
       run: |
-        lt --port 8080 --subdomain manual-test-$(date +%s) > url.txt &  # Start LocalTunnel on port 8080 and save the dynamic URL to a file
+        TIMESTAMP=$(date +%s)
+        SUBDOMAIN="manual-test-${TIMESTAMP}"
+        IP_ADDRESS=$(curl -s ipv4.icanhazip.com | tr -d '\n')
+        lt --port 8080 --subdomain ${SUBDOMAIN} > url.txt &
         sleep 5  # Wait for LocalTunnel to start up
-
-    - name: Show LocalTunnel URL
-      run: cat url.txt  # Output the LocalTunnel URL so you can access it
-
-    - name: Show public IP address
-      run: curl ipv4.icanhazip.com
+        echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
+        echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
+      
 
     - name: Start and wait for HTMX web service
       run: |
