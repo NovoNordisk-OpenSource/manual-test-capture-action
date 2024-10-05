@@ -1,7 +1,18 @@
 name: Test expose web server with LocalTunnel
 
-on: 
+on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Select a tag'
+        required: true
+        default: 'PV'
+        type: choice
+        options:
+          - PV
+          - IV
+          - pPV
+          - pIV
 
 jobs:
   collect-manual-test-result:
@@ -30,7 +41,6 @@ jobs:
     - name: Build the HTMX web service
       run: |
         go build -o webserver .
-      
 
     - name: Start LocalTunnel and wait for HTMX web service
       run: |
@@ -42,7 +52,7 @@ jobs:
         echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
         echo "If you get a 'Bad Gateway' error, refresh the page."
-        ./webserver  # Run the HTMX web server in the foreground (blocking)
+        ./webserver --${{ github.event.inputs.tag | toLower() }}  # Run the HTMX web server with the selected tag
 
     - name: List all generated test result .json files
       run: find output -name '*-result.json'
