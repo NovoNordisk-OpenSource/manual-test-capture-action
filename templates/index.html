@@ -93,6 +93,9 @@
             background: none;
             border: none;
         }
+        #confirmationDialog {
+            flex-direction: column;
+        }
         pre {
             background-color: #f8f8f8;
             padding: 10px;
@@ -165,7 +168,7 @@
                         <button type="button" id="successButton">Success</button>
                         <button type="button" id="failureButton">Failure</button>
                     </div>
-                    <input type="hidden" id="testStatus" name="testStatus" required>
+                    <input type="hidden" id="testStatus" name="testStatus">
     
                     <label for="testTag">Unique Test Tag:</label>
                     <input type="text" id="testTag" name="testTag" value="{{.CurrentScenario.FeatureTag}}" required>
@@ -199,6 +202,16 @@
         <button class="close-button" onclick="closeModal()">&times;</button>
         <img src="" alt="Full Size Image">
     </div>
+
+    <!-- Confirmation Modal -->
+    <dialog id="confirmationDialog">
+        <h3>Confirm Action</h3>
+        <p>You have not selected a test status. Proceeding will set the test status to <strong>"skipped"</strong>. Do you want to continue?</p>
+        <form method="dialog">
+            <button id="confirmContinue">Continue</button>
+            <button id="confirmCancel">Cancel</button>
+        </form>
+    </dialog>
 
     <script>
         // JavaScript for handling drag-and-drop, displaying thumbnails, and deleting images
@@ -370,11 +383,26 @@
             }
         });
 
-        // Form submission validation
+        // Form submission handling
         testForm.addEventListener('submit', function(event) {
             if (!selectedStatus) {
                 event.preventDefault();
-                alert('Please select either "Success" or "Failure" for the Test Status.');
+                // Show confirmation dialog
+                const confirmationDialog = document.getElementById('confirmationDialog');
+                confirmationDialog.showModal();
+
+                const confirmContinue = document.getElementById('confirmContinue');
+                const confirmCancel = document.getElementById('confirmCancel');
+
+                confirmContinue.addEventListener('click', function() {
+                    testStatusInput.value = 'skipped';
+                    confirmationDialog.close();
+                    testForm.submit();
+                });
+
+                confirmCancel.addEventListener('click', function() {
+                    confirmationDialog.close();
+                });
             }
         });
     </script>
