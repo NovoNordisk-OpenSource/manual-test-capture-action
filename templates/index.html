@@ -11,7 +11,7 @@
             display: flex;
         }
         .sidebar {
-            width: 390px; /* Increased from 300px to 390px (30% wider) */
+            width: 500px;
             border-right: 1px solid #ccc;
             padding-right: 10px;
         }
@@ -50,8 +50,8 @@
             display: inline-block;
         }
         .thumb img {
-            max-width: 130px; /* Increased from 100px to 130px */
-            max-height: 130px; /* Increased from 100px to 130px */
+            max-width: 130px;
+            max-height: 130px;
             object-fit: cover;
             border-radius: 5px;
             cursor: pointer;
@@ -83,7 +83,7 @@
             max-width: 90%;
             max-height: 90%;
         }
-        #image-modal.close-button {
+        #image-modal .close-button {
             position: absolute;
             top: 20px;
             right: 20px;
@@ -98,6 +98,39 @@
             padding: 10px;
             border-radius: 5px;
             overflow-x: auto;
+        }
+        /* Styles for Test Status buttons */
+        #testStatusButtons {
+            display: flex;
+            margin-bottom: 1em;
+        }
+        #testStatusButtons button {
+            flex: 1;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-radius: 0;
+        }
+        #testStatusButtons button:first-child {
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+        #testStatusButtons button:last-child {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+        #testStatusButtons button.selected-success {
+            background-color: green;
+            color: white;
+            border-color: green;
+        }
+        #testStatusButtons button.selected-failure {
+            background-color: red;
+            color: white;
+            border-color: red;
+        }
+        /* Adjust button spacing */
+        #testStatusButtons button + button {
+            margin-left: -1px; /* Remove the gap between buttons */
         }
     </style>
 </head>
@@ -123,15 +156,16 @@
                 <p>You have completed all the test scenarios.</p>
             {{else}}
                 <h1>Capture Manual QMS Test Result</h1>
-                <form action="/generate" method="post" enctype="multipart/form-data">
+                <form id="testForm" action="/generate" method="post" enctype="multipart/form-data">
                     <label for="testName">Test Name:</label>
                     <input type="text" id="testName" name="testName" value="{{.CurrentScenario.Name}}" required>
     
-                    <label for="testStatus">Test Status:</label>
-                    <select id="testStatus" name="testStatus" required>
-                        <option value="passed">Success</option>
-                        <option value="failed">Failure</option>
-                    </select>
+                    <label>Test Status:</label>
+                    <div id="testStatusButtons">
+                        <button type="button" id="successButton">Success</button>
+                        <button type="button" id="failureButton">Failure</button>
+                    </div>
+                    <input type="hidden" id="testStatus" name="testStatus" required>
     
                     <label for="testTag">Unique Test Tag:</label>
                     <input type="text" id="testTag" name="testTag" value="{{.CurrentScenario.FeatureTag}}" required>
@@ -295,6 +329,52 @@
         imageModal.addEventListener('click', function (e) {
             if (e.target === imageModal || e.target === modalImg) {
                 closeModal();
+            }
+        });
+
+        // JavaScript for Test Status buttons
+        const successButton = document.getElementById('successButton');
+        const failureButton = document.getElementById('failureButton');
+        const testStatusInput = document.getElementById('testStatus');
+        const testForm = document.getElementById('testForm');
+
+        let selectedStatus = null;
+
+        successButton.addEventListener('click', function() {
+            if (selectedStatus === 'passed') {
+                // Deselect
+                successButton.classList.remove('selected-success');
+                testStatusInput.value = '';
+                selectedStatus = null;
+            } else {
+                // Select success
+                successButton.classList.add('selected-success');
+                failureButton.classList.remove('selected-failure');
+                testStatusInput.value = 'passed';
+                selectedStatus = 'passed';
+            }
+        });
+
+        failureButton.addEventListener('click', function() {
+            if (selectedStatus === 'failed') {
+                // Deselect
+                failureButton.classList.remove('selected-failure');
+                testStatusInput.value = '';
+                selectedStatus = null;
+            } else {
+                // Select failure
+                failureButton.classList.add('selected-failure');
+                successButton.classList.remove('selected-success');
+                testStatusInput.value = 'failed';
+                selectedStatus = 'failed';
+            }
+        });
+
+        // Form submission validation
+        testForm.addEventListener('submit', function(event) {
+            if (!selectedStatus) {
+                event.preventDefault();
+                alert('Please select either "Success" or "Failure" for the Test Status.');
             }
         });
     </script>
