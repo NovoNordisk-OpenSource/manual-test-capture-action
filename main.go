@@ -165,7 +165,6 @@ func parseFeatureFile(path string) error {
 
 	// Get the text after "Feature:" for the feature name
 	featureName := feature.Name
-	fmt.Println("Feature Name: ", featureName)
 
 	for _, child := range feature.Children {
 		if child.Scenario != nil {
@@ -183,20 +182,19 @@ func parseFeatureFile(path string) error {
 					optionTags = append(optionTags, tag.Name)
 				}
 			}
-			fmt.Println("Option Tags: ", optionTags)
 			if !hasManualTag {
 				continue
 			}
 
-			// Only process scenarios with exactly one option tag that matches the specified option tag
-			if len(optionTags) != 1 || optionTags[0] != optionTagToProcess {
+			// Only process scenarios that have the specified option tag among their tags
+			if !contains(optionTags, optionTagToProcess) {
 				continue
 			}
 
 			sc := Scenario{
 				Name:        scenario.Name,
 				Steps:       []string{},
-				OptionTag:   optionTags[0],
+				OptionTag:   optionTagToProcess,
 				FeatureTag:  featureTag,
 				FeatureName: featureName,
 			}
@@ -239,6 +237,16 @@ func parseFeatureFile(path string) error {
 		}
 	}
 	return nil
+}
+
+// Helper function to check if a slice contains a string
+func contains(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }
 
 type TemplateData struct {

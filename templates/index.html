@@ -11,7 +11,7 @@
             display: flex;
         }
         .sidebar {
-            width: 300px;
+            width: 390px; /* Increased from 300px to 390px (30% wider) */
             border-right: 1px solid #ccc;
             padding-right: 10px;
         }
@@ -50,10 +50,11 @@
             display: inline-block;
         }
         .thumb img {
-            max-width: 100px;
-            max-height: 100px;
+            max-width: 130px; /* Increased from 100px to 130px */
+            max-height: 130px; /* Increased from 100px to 130px */
             object-fit: cover;
             border-radius: 5px;
+            cursor: pointer;
         }
         .thumb button {
             position: absolute;
@@ -64,6 +65,33 @@
             border-radius: 50%;
             cursor: pointer;
             padding: 2px 6px;
+        }
+        /* Styles for the image modal */
+        #image-modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        #image-modal img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        #image-modal.close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
         }
         pre {
             background-color: #f8f8f8;
@@ -94,7 +122,7 @@
                 <h1>All Scenarios Processed</h1>
                 <p>You have completed all the test scenarios.</p>
             {{else}}
-                <h1>Test Result Generator</h1>
+                <h1>Capture Manual QMS Test Result</h1>
                 <form action="/generate" method="post" enctype="multipart/form-data">
                     <label for="testName">Test Name:</label>
                     <input type="text" id="testName" name="testName" value="{{.CurrentScenario.Name}}" required>
@@ -126,11 +154,17 @@
                     </div>
                     <div id="gallery"></div>
     
-                    <button type="submit">Generate Test Result File</button>
+                    <button type="submit">Save and continue</button>
                 </form>
             {{end}}
         </div>
     </main>
+
+    <!-- Image Modal -->
+    <div id="image-modal" class="modal">
+        <button class="close-button" onclick="closeModal()">&times;</button>
+        <img src="" alt="Full Size Image">
+    </div>
 
     <script>
         // JavaScript for handling drag-and-drop, displaying thumbnails, and deleting images
@@ -138,6 +172,8 @@
         let fileInput = document.getElementById('fileElem');
         let gallery = document.getElementById('gallery');
         let filesMap = new Map();
+        let imageModal = document.getElementById('image-modal');
+        let modalImg = imageModal.querySelector('img');
 
         if(dropArea) {
             dropArea.addEventListener('click', () => {
@@ -210,6 +246,12 @@
 
                 let img = document.createElement('img');
                 img.src = reader.result;
+                img.alt = file.name;
+
+                // Make the image clickable
+                img.addEventListener('click', function () {
+                    openModal(reader.result);
+                });
 
                 let btn = document.createElement('button');
                 btn.innerHTML = '&times;';
@@ -237,6 +279,24 @@
             files.forEach(file => dataTransfer.items.add(file));
             return dataTransfer.files;
         }
+
+        // Modal functions
+        function openModal(src) {
+            modalImg.src = src;
+            imageModal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            imageModal.style.display = 'none';
+            modalImg.src = '';
+        }
+
+        // Close modal when clicking outside the image
+        imageModal.addEventListener('click', function (e) {
+            if (e.target === imageModal || e.target === modalImg) {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
