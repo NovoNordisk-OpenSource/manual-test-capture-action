@@ -6,7 +6,7 @@ on:
       tag:
         description: 'Select a tag'
         required: true
-        default: 'PV'
+        default: ''
         type: choice
         options:
           - PV
@@ -52,7 +52,7 @@ jobs:
         echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
         echo "If you get a 'Bad Gateway' error, refresh the page."
-        ./webserver --${{ github.event.inputs.tag | toLower() }}  # Run the HTMX web server with the selected tag
+        ./webserver --${{ toLower(github.event.inputs.tag) }}  # Run the HTMX web server with the selected tag
 
     - name: List all generated test result .json files
       run: find output -name '*-result.json'
