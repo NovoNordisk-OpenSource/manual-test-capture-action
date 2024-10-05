@@ -50,7 +50,8 @@ jobs:
 
     - name: Start the HTMX web service and wait for it to exit
       run: |
-        ./webserver --${{ github.event.inputs.tag | toLower() }}  # Run the HTMX web server with the selected tag
+        TAG_LOWER=$(echo "${{ github.event.inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+        ./webserver --${TAG_LOWER}  # Run the HTMX web server with the selected tag
 
     - name: List all generated test result .json files
       run: find output -name '*-result.json'
