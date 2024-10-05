@@ -1,7 +1,18 @@
 name: Test expose web server with localhost.run
 
-on: 
+on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Select a tag'
+        required: true
+        default: 'PV'
+        type: choice
+        options:
+          - PV
+          - IV
+          - pPV
+          - pIV
 
 jobs:
   collect-manual-test-result:
@@ -39,7 +50,7 @@ jobs:
 
     - name: Start the HTMX web service and wait for it to exit
       run: |
-        ./webserver
+        ./webserver --${{ github.event.inputs.tag | toLower() }}  # Run the HTMX web server with the selected tag
 
     - name: List all generated test result .json files
       run: find output -name '*-result.json'
