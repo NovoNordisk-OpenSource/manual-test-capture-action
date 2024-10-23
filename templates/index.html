@@ -252,9 +252,13 @@
             });
 
             dropArea.addEventListener('drop', handleDrop, false);
-            dropArea.addEventListener('paste', handlePaste, false);
+            // Removed the paste event listener from dropArea
+            // dropArea.addEventListener('paste', handlePaste, false);
             fileInput.addEventListener('change', handleFiles, false);
         }
+
+        // Attach the paste event listener to the document
+        document.addEventListener('paste', handlePaste, false);
 
         function handleDrop(e) {
             e.preventDefault();
@@ -340,6 +344,14 @@
 
         // Handle paste event for images
         function handlePaste(e) {
+            let activeElement = document.activeElement;
+            let isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable;
+
+            // If the active element is an input, textarea, or contentEditable, do not process the paste event here
+            if (isInput) {
+                return;
+            }
+
             let items = e.clipboardData.items;
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.startsWith('image/')) {
