@@ -34,6 +34,8 @@
             text-align: center;
             cursor: pointer;
             color: #999;
+            /* Make drop-area focusable */
+            outline: none;
         }
         #drop-area.hover {
             border-color: #333;
@@ -135,6 +137,10 @@
         #testStatusButtons button + button {
             margin-left: -1px; /* Remove the gap between buttons */
         }
+        /* Styles for Comments field */
+        #comments {
+            resize: vertical;
+        }
     </style>
 </head>
 <body>
@@ -185,11 +191,15 @@
                     </select>
     
                     <label for="attachments">Attachments (jpg or png images):</label>
-                    <div id="drop-area">
-                        <p>Drag & drop images here or click to select files</p>
+                    <div id="drop-area" tabindex="0">
+                        <p>Drag & drop images here, click to select files, or paste images from clipboard</p>
                         <input type="file" id="fileElem" name="attachments[]" accept=".jpg,.jpeg,.png" multiple style="display:none;">
                     </div>
                     <div id="gallery"></div>
+
+                    <!-- Comments Field -->
+                    <label for="comments">Comments:</label>
+                    <textarea id="comments" name="comments" rows="3"></textarea>
     
                     <button type="submit">Save and continue</button>
                 </form>
@@ -242,6 +252,7 @@
             });
 
             dropArea.addEventListener('drop', handleDrop, false);
+            dropArea.addEventListener('paste', handlePaste, false);
             fileInput.addEventListener('change', handleFiles, false);
         }
 
@@ -325,6 +336,18 @@
             let dataTransfer = new DataTransfer();
             files.forEach(file => dataTransfer.items.add(file));
             return dataTransfer.files;
+        }
+
+        // Handle paste event for images
+        function handlePaste(e) {
+            let items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    let blob = items[i].getAsFile();
+                    addFile(blob);
+                    e.preventDefault();
+                }
+            }
         }
 
         // Modal functions
