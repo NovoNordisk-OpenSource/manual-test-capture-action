@@ -166,6 +166,7 @@
             {{else}}
                 <h1>Capture Manual QMS Test Result</h1>
                 <form id="testForm" action="/generate" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="startTimestamp" name="startTimestamp">
                     <label for="testName">Test Name:</label>
                     <input type="text" id="testName" name="testName" value="{{.CurrentScenario.Name}}" required>
     
@@ -379,6 +380,13 @@
                 closeModal();
             }
         });
+
+        // Set the start timestamp when the page loads
+        window.onload = function() {
+            var startTimestampInput = document.getElementById('startTimestamp');
+            var startTimestamp = Math.floor(Date.now()); // Unix timestamp in milliseconds
+            startTimestampInput.value = startTimestamp;
+        };
 
         // JavaScript for Test Status buttons
         const successButton = document.getElementById('successButton');

@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -303,6 +304,19 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	featureName := r.FormValue("featureName")
 	optionTag := r.FormValue("optionTag")
 	comments := r.FormValue("comments")
+	startTimestampStr := r.FormValue("startTimestamp")
+
+	var startTimestamp int64
+	if startTimestampStr != "" {
+		startTimestamp, err = strconv.ParseInt(startTimestampStr, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid start timestamp", http.StatusBadRequest)
+			return
+		}
+	} else {
+		// If for some reason the start timestamp is missing, use current time
+		startTimestamp = time.Now().UnixMilli()
+	}
 
 	// Handle file uploads
 	attachmentsHeaders := r.MultipartForm.File["attachments[]"]
@@ -371,15 +385,14 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the test result object
-	currentTime := time.Now()
 	testResult := TestResult{
 		UUID:        testTag,
 		Name:        testName,
 		Status:      testStatus,
 		Attachments: encodedAttachments,
 		Labels:      labels,
-		Start:       currentTime.UnixMilli(),
-		Stop:        currentTime.UnixMilli(),
+		Start:       startTimestamp,
+		Stop:        time.Now().UnixMilli(),
 	}
 
 	// Marshal the test result to JSON
