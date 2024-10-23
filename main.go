@@ -302,6 +302,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	testTag := r.FormValue("testTag")
 	featureName := r.FormValue("featureName")
 	optionTag := r.FormValue("optionTag")
+	comments := r.FormValue("comments")
 
 	// Handle file uploads
 	attachmentsHeaders := r.MultipartForm.File["attachments[]"]
@@ -362,6 +363,10 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:  "tag",
 			Value: optionTag,
+		},
+		{
+			Name:  "comments",
+			Value: comments,
 		},
 	}
 
