@@ -1,0 +1,58 @@
+name: 'Collect Manual Test Results'
+description: 'Collects manual test results based on a selected tag and features.'
+inputs:
+  tag:
+    description: 'Tag (PV, IV, pPV, pIV)'
+    required: true
+    default: ''
+  features:
+    description: 'Features path as a string'
+    required: true
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4.1.7
+      with:
+        clean: true
+
+    - name: Set up Go environment
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+        cache: false
+
+    - name: Clean up the output directory
+      run: rm -rf output
+
+    - name: Install LocalTunnel
+      run: npm install -g localtunnel
+
+    - name: Build the HTMX web service
+      run: go build -o webserver .
+
+    - name: Start LocalTunnel and wait for HTMX web service
+      run: |
+        TIMESTAMP=$(date +%s)
+        SUBDOMAIN="manual-test-${TIMESTAMP}"
+        IP_ADDRESS=$(curl -s ipv4.icanhazip.com | tr -d '\n')
+        lt --port 8080 --subdomain ${SUBDOMAIN} > url.txt &
+        sleep 5
+        echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
+        echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
+        echo "If you get a 'Bad Gateway' error, refresh the page."
+        TAG_LOWER=$(echo "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+        ./webserver --${TAG_LOWER} --features "${{ inputs.features }}"
+
+    - name: List all generated test result .json files
+      run: find output -name '*-result.json'
+
+    - name: Print the content of all .json files in the output directory
+      run: find output -name '*-result.json' -exec cat {} \;
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4.4.0
+      with:
+        name: manual-test-results-${{ inputs.tag }}
+        path: output/
