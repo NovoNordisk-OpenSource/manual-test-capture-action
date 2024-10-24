@@ -24,15 +24,19 @@ runs:
         cache: false
 
     - name: Clean up the output directory
+      shell: bash
       run: rm -rf output
 
     - name: Install LocalTunnel
+      shell: bash
       run: npm install -g localtunnel
 
     - name: Build the HTMX web service
+      shell: bash
       run: go build -o webserver .
 
     - name: Start LocalTunnel and wait for HTMX web service
+      shell: bash
       run: |
         TIMESTAMP=$(date +%s)
         SUBDOMAIN="manual-test-${TIMESTAMP}"
@@ -46,9 +50,11 @@ runs:
         ./webserver --${TAG_LOWER} --features "${{ inputs.features }}"
 
     - name: List all generated test result .json files
+      shell: bash
       run: find output -name '*-result.json'
 
     - name: Print the content of all .json files in the output directory
+      shell: bash
       run: find output -name '*-result.json' -exec cat {} \;
 
     - name: Upload test results
