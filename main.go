@@ -430,7 +430,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	// Write the HTML response with JavaScript to trigger the download and reload the page
 	// Apply the PicoCSS stylesheet to this page
 	htmlResponse := fmt.Sprintf(`
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 	<meta charset="UTF-8">
 	<title>Processing</title>
