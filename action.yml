@@ -2,11 +2,11 @@ name: 'Collect Manual Test Results'
 description: 'Collects manual test results based on a selected tag and features.'
 inputs:
   tag:
-    description: 'Tag (PV, IV, pPV, pIV)'
+    description: 'Tag [pv|iv|ppv|piv], example: pv'
     required: true
     default: ''
   features:
-    description: 'Features path as a string'
+    description: 'Features path as a string [some/path], example: my-component/requirements'
     required: true
     default: ''
 runs:
@@ -46,10 +46,9 @@ runs:
         sleep 5
         echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
-        echo "If you get a 'Bad Gateway' error, refresh the page."
+        echo "If you get a '502 Bad Gateway' error, refresh the page."
         TAG_LOWER=$(echo "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
-        ./webserver --${TAG_LOWER}
-        # ./webserver --${TAG_LOWER} --features "${{ inputs.features }}"
+        ./webserver --${TAG_LOWER} --features-dir "${{ inputs.features }}"
 
     - name: List all generated test result .json files
       shell: bash
