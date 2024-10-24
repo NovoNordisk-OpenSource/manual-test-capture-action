@@ -51,7 +51,7 @@ jobs:
         sleep 5  # Wait for LocalTunnel to start up
         echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
-        echo "If you get a 'Bad Gateway' error, refresh the page."
+        echo "If you get a '502 Bad Gateway' error, refresh the page."
         TAG_LOWER=$(echo "${{ github.event.inputs.tag }}" | tr '[:upper:]' '[:lower:]')
         ./webserver --${TAG_LOWER} --features-dir features # Run the HTMX web server with the selected tag
 
