@@ -15,6 +15,7 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v4.1.7
       with:
+        repository: lasselundstenjensen/htmx-manual-testresult-generator
         clean: true
 
     - name: Set up Go environment
