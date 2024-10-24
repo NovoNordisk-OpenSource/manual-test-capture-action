@@ -48,7 +48,8 @@ runs:
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
         echo "If you get a 'Bad Gateway' error, refresh the page."
         TAG_LOWER=$(echo "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
-        ./webserver --${TAG_LOWER} --features "${{ inputs.features }}"
+        ./webserver --${TAG_LOWER}
+        # ./webserver --${TAG_LOWER} --features "${{ inputs.features }}"
 
     - name: List all generated test result .json files
       shell: bash
