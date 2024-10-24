@@ -65,10 +65,12 @@ var (
 func main() {
 	// Parse command-line arguments
 	var pvFlag, ivFlag, ppvFlag, pivFlag bool
+	var featuresDir string
 	flag.BoolVar(&pvFlag, "pv", false, "Process scenarios with @PV tag")
 	flag.BoolVar(&ivFlag, "iv", false, "Process scenarios with @IV tag")
 	flag.BoolVar(&ppvFlag, "ppv", false, "Process scenarios with @pPV tag")
 	flag.BoolVar(&pivFlag, "piv", false, "Process scenarios with @pIV tag")
+	flag.StringVar(&featuresDir, "features-dir", "requirements", "Relative path to directory containing .feature files")
 	flag.Parse()
 
 	// Determine which option tag to process
@@ -89,7 +91,7 @@ func main() {
 	}
 
 	// Load scenarios from feature files
-	err := loadScenarios()
+	err := loadScenarios(featuresDir)
 	if err != nil {
 		log.Fatalf("Error loading scenarios: %v", err)
 	}
@@ -124,9 +126,8 @@ func main() {
 	}
 }
 
-func loadScenarios() error {
-	featureDir := "features"
-	err := filepath.WalkDir(featureDir, func(path string, d fs.DirEntry, err error) error {
+func loadScenarios(featuresDir string) error {
+	err := filepath.WalkDir(featuresDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
