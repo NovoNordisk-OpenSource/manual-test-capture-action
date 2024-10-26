@@ -53,7 +53,7 @@ An experimental test result generator from manual inputs and outputting in the [
 
 - ### All test result json files are packed and uploaded as a workflow artifact
 
-![image](https://github.com/user-attachments/assets/1679e61a-b586-42b3-ae44-df2377587b81)
+![image](https://github.com/user-attachments/assets/3a41e613-2923-4164-86cb-9e260ae14a38)
 
 - Each file is timestamped with time of completing the test
 
