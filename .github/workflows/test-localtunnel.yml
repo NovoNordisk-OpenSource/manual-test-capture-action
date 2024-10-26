@@ -13,6 +13,14 @@ on:
           - IV
           - pPV
           - pIV
+      environment:
+        description: 'Select an environment'
+        required: true
+        default: 'validation'
+        type: choice
+        options:
+          - Validation
+          - Production
 
 jobs:
   collect-manual-test-result:
@@ -42,18 +50,26 @@ jobs:
       run: |
         go build -o webserver .
 
+    - name: Convert tag to lowercase
+      id: lowercase_tag
+      run: echo "tag_lower=$(echo '${{ github.event.inputs.tag }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+    - name: Convert environment to lowercase
+      id: lowercase_environment
+      run: echo "environment_lower=$(echo '${{ github.event.inputs.environment }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
     - name: Start LocalTunnel and wait for HTMX web service
       run: |
         TIMESTAMP=$(date +%s)
         SUBDOMAIN="manual-test-${TIMESTAMP}"
         IP_ADDRESS=$(curl -s ipv4.icanhazip.com | tr -d '\n')
         lt --port 8080 --subdomain ${SUBDOMAIN} > url.txt &
-        sleep 5  # Wait for LocalTunnel to start up
+        sleep 5
         echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
         echo "If you get a '502 Bad Gateway' error, refresh the page."
-        TAG_LOWER=$(echo "${{ github.event.inputs.tag }}" | tr '[:upper:]' '[:lower:]')
-        ./webserver --${TAG_LOWER} --features-dir features # Run the HTMX web server with the selected tag
+        # TAG_LOWER=$(echo "${{ github.event.inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+        ./webserver --${{ steps.lowercase_tag.outputs.tag_lower }} --features-dir features # Run the HTMX web server with the selected tag
 
     - name: List all generated test result .json files
       run: find output -name '*-result.json'
@@ -64,5 +80,5 @@ jobs:
     - name: Upload test results
       uses: actions/upload-artifact@v4.4.0
       with:
-        name: manual-test-results-${{ github.event.inputs.tag }}
+        name: manual-test-results-${{ steps.lowercase_environment.outputs.environment_lower }}-${{ steps.lowercase_tag.outputs.tag_lower }}
         path: output/

@@ -45,6 +45,11 @@ runs:
       id: lowercase_tag
       run: echo "tag_lower=$(echo '${{ inputs.tag }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
+    - name: Convert environment to lowercase
+      shell: bash
+      id: lowercase_environment
+      run: echo "environment_lower=$(echo '${{ inputs.environment }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
     - name: Start LocalTunnel and wait for HTMX web service
       shell: bash
       run: |
@@ -70,5 +75,5 @@ runs:
     - name: Upload test results
       uses: actions/upload-artifact@v4.4.0
       with:
-        name: manual-test-results-${{ inputs.environment }}-${{ steps.lowercase_tag.outputs.tag_lower }}
+        name: manual-test-results-${{ steps.lowercase_environment.outputs.environment_lower }}-${{ steps.lowercase_tag.outputs.tag_lower }}
         path: output/
