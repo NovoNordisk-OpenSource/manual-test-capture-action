@@ -9,6 +9,10 @@ inputs:
     description: 'Features path as a string [some/path], example: my-component/requirements'
     required: true
     default: ''
+  environment:
+    description: 'Environment tests are executed in [validation|production], example: validation'
+    required: true
+    default: ''
 runs:
   using: 'composite'
   steps:
@@ -36,6 +40,11 @@ runs:
       shell: bash
       run: go build -o webserver .
 
+    - name: Convert tag to lowercase
+      shell: bash
+      id: lowercase_tag
+      run: echo "tag_lower=$(echo '${{ inputs.tag }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
     - name: Start LocalTunnel and wait for HTMX web service
       shell: bash
       run: |
@@ -47,8 +56,8 @@ runs:
         echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
         echo "If you get a '502 Bad Gateway' error, refresh the page."
-        TAG_LOWER=$(echo "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
-        ./webserver --${TAG_LOWER} --features-dir "${{ inputs.features }}"
+        # TAG_LOWER=$(echo "${{ inputs.tag }}" | tr '[:upper:]' '[:lower:]')
+        ./webserver --${{ steps.lowercase_tag.outputs.tag_lower }} --features-dir "${{ inputs.features }}"
 
     - name: List all generated test result .json files
       shell: bash
@@ -61,5 +70,5 @@ runs:
     - name: Upload test results
       uses: actions/upload-artifact@v4.4.0
       with:
-        name: manual-test-results-${{ inputs.tag }}
+        name: manual-test-results-${{ inputs.environment }}-${{ steps.lowercase_tag.outputs.tag_lower }}
         path: output/
