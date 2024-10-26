@@ -100,7 +100,7 @@ jobs:
         IP_ADDRESS=$(curl -s ipv4.icanhazip.com | tr -d '\n')
         lt --port 8080 --subdomain ${SUBDOMAIN} > url.txt &
         sleep 5
-        echo -e "Your service is available at: \033[32mhttps://${SUBDOMAIN}.loca.lt\033[0m"
+        echo -e "Your service is available at: https://${SUBDOMAIN}.loca.lt"
         echo -e "PLEASE NOTE: The IP address is required as the password on the webpage: \033[32m${IP_ADDRESS}\033[0m"
         echo "If you get a '502 Bad Gateway' error, refresh the page."
         # TAG_LOWER=$(echo "${{ github.event.inputs.tag }}" | tr '[:upper:]' '[:lower:]')
