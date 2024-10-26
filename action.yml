@@ -16,6 +16,29 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        environment="${{ inputs.environment }}"
+        tag="${{ inputs.tag }}"
+
+        # Define a regex pattern that allows only letters, numbers, underscores, and hyphens
+        pattern='^[a-zA-Z0-9_-]+$'
+
+        # Check 'environment' input
+        if [[ ! "$environment" =~ $pattern ]]; then
+          echo "Error: 'environment' contains invalid characters. Only letters, numbers, underscores, and hyphens are allowed."
+          exit 1
+        fi
+
+        # Check 'tag' input
+        if [[ ! "$tag" =~ $pattern ]]; then
+          echo "Error: 'tag' contains invalid characters. Only letters, numbers, underscores, and hyphens are allowed."
+          exit 1
+        fi
+
+        echo "Inputs are valid."
+
     - name: Checkout code
       uses: actions/checkout@v4.1.7
       with:
