@@ -21,6 +21,10 @@ on:
         options:
           - Validation
           - Production
+      features:
+        description: 'Path to the features directory'
+        required: true
+        default: 'features'
 
 jobs:
   collect-manual-test-result:
@@ -31,22 +35,31 @@ jobs:
       run: |
         environment="${{ github.event.inputs.environment }}"
         tag="${{ github.event.inputs.tag }}"
-    
+        features="${{ github.event.inputs.features }}"
+
         # Define a regex pattern that allows only letters, numbers, underscores, and hyphens
-        pattern='^[a-zA-Z0-9_-]+$'
-    
+        alphanum_pattern='^[a-zA-Z0-9_-]+$'
+        # Define a regex pattern that matches a valid OS path
+        path_pattern='^[a-zA-Z0-9/_\.-]+$'
+
         # Check 'environment' input
-        if [[ ! "$environment" =~ $pattern ]]; then
+        if [[ ! "$environment" =~ $alphanum_pattern ]]; then
           echo "Error: 'environment' contains invalid characters. Only letters, numbers, underscores, and hyphens are allowed."
           exit 1
         fi
-    
+
         # Check 'tag' input
-        if [[ ! "$tag" =~ $pattern ]]; then
+        if [[ ! "$tag" =~ $alphanum_pattern ]]; then
           echo "Error: 'tag' contains invalid characters. Only letters, numbers, underscores, and hyphens are allowed."
           exit 1
         fi
-    
+
+        # Check 'features' input
+        if [[ ! "$features" =~ $path_pattern ]]; then
+          echo "Error: 'features' contains invalid characters. Only letters, numbers, underscores, hyphens, periods, and slashes are allowed."
+          exit 1
+        fi
+
         echo "Inputs are valid."
 
     - name: Checkout code
@@ -87,11 +100,11 @@ jobs:
         IP_ADDRESS=$(curl -s ipv4.icanhazip.com | tr -d '\n')
         lt --port 8080 --subdomain ${SUBDOMAIN} > url.txt &
         sleep 5
-        echo "Your service is available at: https://${SUBDOMAIN}.loca.lt"
-        echo "PLEASE NOTE: The IP address is required as the password on the webpage: ${IP_ADDRESS}"
+        echo -e "Your service is available at: \033[32mhttps://${SUBDOMAIN}.loca.lt\033[0m"
+        echo -e "PLEASE NOTE: The IP address is required as the password on the webpage: \033[32m${IP_ADDRESS}\033[0m"
         echo "If you get a '502 Bad Gateway' error, refresh the page."
         # TAG_LOWER=$(echo "${{ github.event.inputs.tag }}" | tr '[:upper:]' '[:lower:]')
-        ./webserver --${{ steps.lowercase_tag.outputs.tag_lower }} --features-dir features # Run the HTMX web server with the selected tag
+        ./webserver --${{ steps.lowercase_tag.outputs.tag_lower }} --features-dir ${{ github.event.inputs.features }} --environment ${{ steps.lowercase_environment.outputs.environment_lower }} # Run the HTMX web server with the selected tag
 
     - name: List all generated test result .json files
       run: find output -name '*-result.json'

@@ -55,45 +55,54 @@ type Scenario struct {
 }
 
 var (
-	scenarios            []Scenario
-	currentScenarioIndex int
-	shutdownOnce         sync.Once
-	optionTagToProcess   string
-	webpageTitle         string
+	scenarios                   []Scenario
+	currentScenarioIndex        int
+	shutdownOnce                sync.Once
+	optionTagToProcess          string
+	optionTagToProcessLowercase string
+	webpageTitle                string
+	environment                 string
 )
 
 func main() {
 	// Parse command-line arguments
 	var pvFlag, ivFlag, ppvFlag, pivFlag bool
-	var featuresDir string
-	var environment string
-	flag.BoolVar(&pvFlag, "pv", false, "Process scenarios with @PV tag")
-	flag.BoolVar(&ivFlag, "iv", false, "Process scenarios with @IV tag")
-	flag.BoolVar(&ppvFlag, "ppv", false, "Process scenarios with @pPV tag")
-	flag.BoolVar(&pivFlag, "piv", false, "Process scenarios with @pIV tag")
-	flag.StringVar(&featuresDir, "features-dir", "requirements", "Relative path to directory containing .feature files")
-	flag.StringVar(&environment, "environment", "", "Environment the tests are executed in, options: [validation|production]")
+	var featuresDirFlag string
+	var environmentFlag string
+	flag.BoolVar(&pvFlag, "pv", false, "Process @manual scenarios with @PV tag")
+	flag.BoolVar(&ivFlag, "iv", false, "Process @manual scenarios with @IV tag")
+	flag.BoolVar(&ppvFlag, "ppv", false, "Process @manual scenarios with @pPV tag")
+	flag.BoolVar(&pivFlag, "piv", false, "Process @manual scenarios with @pIV tag")
+	flag.StringVar(&featuresDirFlag, "features-dir", "requirements", "Relative path to directory containing .feature files")
+	flag.StringVar(&environmentFlag, "environment", "", "Environment the tests are executed in, options: [validation|production]")
 	flag.Parse()
+
+	// Propagate environment to the global variable
+	environment = environmentFlag
 
 	// Determine which option tag to process
 	if pvFlag {
 		optionTagToProcess = "@PV"
+		optionTagToProcessLowercase = "pv"
 		webpageTitle = "Test Scenarios (PV)"
 	} else if ivFlag {
 		optionTagToProcess = "@IV"
+		optionTagToProcessLowercase = "iv"
 		webpageTitle = "Test Scenarios (IV)"
 	} else if ppvFlag {
 		optionTagToProcess = "@pPV"
+		optionTagToProcessLowercase = "ppv"
 		webpageTitle = "Test Scenarios (pPV)"
 	} else if pivFlag {
 		optionTagToProcess = "@pIV"
+		optionTagToProcessLowercase = "piv"
 		webpageTitle = "Test Scenarios (pIV)"
 	} else {
 		log.Fatal("Please specify one of --pv, --iv, --ppv, or --piv")
 	}
 
 	// Load scenarios from feature files
-	err := loadScenarios(featuresDir)
+	err := loadScenarios(featuresDirFlag)
 	if err != nil {
 		log.Fatalf("Error loading scenarios: %v", err)
 	}
@@ -416,7 +425,7 @@ func generateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the filename
-	filename := fmt.Sprintf("manual-test-%d-result.json", testResult.Stop)
+	filename := fmt.Sprintf("manual-test-%s-%s-%d-result.json", environment, optionTagToProcessLowercase, testResult.Stop)
 	filepath := filepath.Join(outputDir, filename)
 
 	// Save the JSON data to a file
