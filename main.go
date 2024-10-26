@@ -66,11 +66,13 @@ func main() {
 	// Parse command-line arguments
 	var pvFlag, ivFlag, ppvFlag, pivFlag bool
 	var featuresDir string
+	var environment string
 	flag.BoolVar(&pvFlag, "pv", false, "Process scenarios with @PV tag")
 	flag.BoolVar(&ivFlag, "iv", false, "Process scenarios with @IV tag")
 	flag.BoolVar(&ppvFlag, "ppv", false, "Process scenarios with @pPV tag")
 	flag.BoolVar(&pivFlag, "piv", false, "Process scenarios with @pIV tag")
 	flag.StringVar(&featuresDir, "features-dir", "requirements", "Relative path to directory containing .feature files")
+	flag.StringVar(&environment, "environment", "", "Environment the tests are executed in, options: [validation|production]")
 	flag.Parse()
 
 	// Determine which option tag to process
