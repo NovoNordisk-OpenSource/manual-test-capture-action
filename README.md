@@ -17,8 +17,46 @@ An experimental test result generator from manual inputs and outputting in the [
 Embed the action call in your GitHub workflow, like this:
 
 ```yaml
-
+name: Collect Manual Test Results
+runs-on: ubuntu-latest
+steps:
+  - uses: lasselundstenjensen/htmx-manual-testresult-generator@main
+    with:
+      environment: validation
+      tag: pv
+      features: requirements
 ```
+
+</br>
+
+### Inputs
+
+Explanation of input paramters.
+
+| Name | Description | Required |
+|------|-------------|----------|
+| environment | Environment tests are executed in [`validation`\|`production`] (can also be custom a value like `test` or `dev`), example: `validation` | Yes |
+| tag | Tag [`pv`\|`iv`\|`ppv`\|`piv`], example: `pv` | Yes |
+| features | Features path as a string [`some/path`], example: `my-component/requirements` | Yes |
+
+</br>
+
+### Outputs
+
+Each call the action results in an output artifact being uploaded in the workflow run following this naming convention:
+
+```plaintext
+manual-test-results-<environment>-<tag>
+```
+
+For example:
+
+`manual-test-results-validation-pv`
+
+`manual-test-results-production-piv`
+
+</br>
+</br>
 
 ## Notes and known issues
 
