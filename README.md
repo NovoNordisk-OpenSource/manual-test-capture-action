@@ -1,6 +1,6 @@
 ## What is this?
 
-An experimental test result generator from manual inputs and outputting in the [Allure2 JSON format](https://allurereport.org/docs/how-it-works-test-result-file/) as schema.
+An experimental test result capture and generator from manual inputs and outputting in the [Allure2 JSON format](https://allurereport.org/docs/how-it-works-test-result-file/) schema.
 
 </br>
 
@@ -20,7 +20,7 @@ Embed the action call in your GitHub workflow, like this:
 name: Collect Manual Test Results
 runs-on: ubuntu-latest
 steps:
-  - uses: lasselundstenjensen/htmx-manual-testresult-generator@main
+  - uses: lasselundstenjensen/manual-test-capture-action@main
     with:
       environment: validation
       tag: pv
@@ -115,7 +115,6 @@ For example:
 - Each file is labelled with the test type (`iv`, `pv`, `piv`, `ppv`) and environment (e.g. `validation`/`production`) it belongs to
 
 ![image](https://github.com/user-attachments/assets/0efb2517-bc09-4543-96c9-43a28cbc5ca7)
-
 
 </br>
 </br>
