@@ -20,7 +20,7 @@ Embed the action call in your GitHub workflow, like this:
 name: Collect Manual Test Results
 runs-on: ubuntu-latest
 steps:
-  - uses: lasselundstenjensen/manual-test-capture-action@main
+  - uses: NovoNordisk-OpenSource/manual-test-capture-action@main
     with:
       environment: validation
       tag: pv
